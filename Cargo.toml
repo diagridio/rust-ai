@@ -1,0 +1,19 @@
+[workspace]
+resolver = "2"
+members = ["crates/diagrid-goose"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license-file = "LICENSE.md"
+repository = "https://github.com/diagridio/rust-ai"
+
+# Pinned to the exact published crates.io release validated locally: activity
+# execution, retry policies, and crash recovery (process SIGTERM'd mid-activity
+# resumes correctly on restart) all confirmed against v0.19.0 specifically.
+[workspace.dependencies]
+dapr = { version = "0.19.0", features = ["workflow"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+env_logger = "0.11"
