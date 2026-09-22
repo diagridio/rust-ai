@@ -17,3 +17,10 @@ tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 env_logger = "0.11"
+anyhow = "1"
+
+# The same ACP crate + protocol version Goose itself depends on (goose's
+# Cargo.toml pins agent-client-protocol = "2.0.0"; 2.2.0 is the same v1 wire
+# protocol, additive-only since). Talking to `goose acp` over this is the
+# entire integration surface — no goose source is vendored or modified.
+agent-client-protocol = "2.2.0"

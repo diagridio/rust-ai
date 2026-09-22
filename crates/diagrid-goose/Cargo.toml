@@ -1,6 +1,6 @@
 [package]
 name = "diagrid-goose"
-description = "Durable Dapr Workflow wrapper for Goose (scaffold — activity boundaries not yet defined)"
+description = "Durable Dapr Workflow wrapper for Goose, driven entirely over its stable ACP interface"
 version.workspace = true
 edition.workspace = true
 license-file.workspace = true
@@ -11,6 +11,10 @@ dapr = { workspace = true }
 tokio = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+anyhow = { workspace = true }
+agent-client-protocol = { workspace = true }
+log = "0.4"
 
 [dev-dependencies]
 env_logger = { workspace = true }
+axum = "0.8"
