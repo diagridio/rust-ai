@@ -4,19 +4,6 @@
 
 This is the Rust counterpart to [`python-ai`](https://github.com/diagridio/python-ai), [`dotnet-ai`](https://github.com/diagridio/dotnet-ai), and [`typescript-ai`](https://github.com/diagridio/typescript-ai): an extension SDK for the open-source [Dapr](https://github.com/dapr/dapr) project that wraps AI agent frameworks in Dapr Workflows so agents can recover from failures, persist state across restarts, and scale effectively — for agent frameworks whose runtime lives natively in Rust rather than being callable from Python/.NET/TypeScript.
 
-## Status
-
-No crates published yet. First integration, `diagrid-goose`, is implemented and validated locally against Dapr and a real `goose` binary — see [`crates/diagrid-goose`](crates/diagrid-goose).
-
-Built on [`dapr/rust-sdk`](https://github.com/dapr/rust-sdk)'s Workflow module (Alpha), pinned to the exact published `dapr = "0.19.0"` release on crates.io — validated locally for activity execution, retry policies, and crash recovery (process killed mid-activity resumes correctly on restart).
-
-### `diagrid-goose`
-
-[Goose](https://github.com/aaif-goose/goose)'s agent loop (tool calling, extensions/MCP, session state machine) lives entirely in Rust, but not as an importable library — `goose-agent` and friends are internal crates of the `aaif-goose/goose` monorepo, not published to crates.io. `diagrid-goose` depends on none of them and requires no change to Goose itself: it drives an unmodified `goose acp` process purely over Goose's stable, already-published [Agent Client Protocol](https://agentclientprotocol.com/) interface.
-
-One Dapr activity = one Goose turn (one `session/prompt` round trip against a freshly spawned process). Session continuity across turns rides Goose's own `session/load` support, so each turn is an independent, freshly spawned activity with no shared process or connection state that a crash could strand. A retried turn resumes from what Goose's session already holds: Goose saves a turn's prompt before calling the model, so the retry never sends that prompt to the model a second time, and an attempt that finished before Dapr recorded it isn't run again. A turn that fails outright (Goose exits, its connection breaks, or it returns an error) gets up to 3 attempts in all, 5s and then 10s apart; a model provider that needs authentication fails the workflow straight away instead.
-
-Verified end to end against local Dapr with [Goose v1.54.0](https://github.com/aaif-goose/goose/releases/tag/v1.54.0): `kill -TERM` sent to the worker while turn 2's model call is in flight, a fresh process resumes the same Goose session and completes the turn without re-running turn 1 or repeating turn 2's prompt — see `crates/diagrid-goose/examples/goose_crash_recovery.rs`. `crates/diagrid-goose/tests/goose_resume.rs` pins down the Goose behavior this relies on; re-run it on every Goose upgrade (`GOOSE_BIN=/path/to/goose cargo test -p diagrid-goose -- --ignored`).
 
 ## Getting started
 
@@ -27,7 +14,7 @@ Verified end to end against local Dapr with [Goose v1.54.0](https://github.com/a
 - **Goose**, with a model provider configured. The installer walks you through `goose configure` (choose a provider and model, enter its API key), and you can re-run `goose configure` any time:
 
   ```bash
-  curl -fsSL https://github.com/aaif-goose/goose/releases/download/stable/download_cli.sh | bash
+  curl -fsSL https://github.com/aif-goose/goose/releases/download/stable/download_cli.sh | bash
   ```
 
   `diagrid-goose` is validated against Goose v1.54.0; to install exactly that version, change the end of the command to `| GOOSE_VERSION=v1.54.0 bash`. Rather than running `goose configure`, you can also configure Goose through the environment, e.g. for OpenAI:
