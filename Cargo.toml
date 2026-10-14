@@ -19,8 +19,9 @@ serde_json = "1"
 env_logger = "0.11"
 anyhow = "1"
 
-# The same ACP crate + protocol version Goose itself depends on (goose's
-# Cargo.toml pins agent-client-protocol = "2.0.0"; 2.2.0 is the same v1 wire
-# protocol, additive-only since). Talking to `goose acp` over this is the
-# entire integration surface — no goose source is vendored or modified.
+# The same ACP crate + protocol version Goose itself depends on: Goose v1.54.0,
+# the release this is validated against end to end, pins
+# agent-client-protocol = "2.2.0" (with agent-client-protocol-schema = "=1.9.1",
+# which is also what Cargo.lock resolves here). Talking to `goose acp` over this
+# is the entire integration surface — no goose source is vendored or modified.
 agent-client-protocol = "2.2.0"
