@@ -141,6 +141,14 @@ Run it next to a Dapr sidecar: `dapr run --app-id my-agent -- cargo run`. The st
 | [`goose_crash_recovery`](crates/diagrid-goose/examples/goose_crash_recovery.rs) | Self-checking crash test: the worker is killed in the middle of a turn, and a restart resumes it. Uses a built-in stand-in for the model, so no API key needed; takes two runs (steps in the file). |
 | [`crash_recovery`](crates/diagrid-goose/examples/crash_recovery.rs) | The same kind of crash test for a plain Dapr workflow, without Goose. |
 
+## Releasing
+
+1. Bump `version` in `[workspace.package]` in `Cargo.toml` (and refresh `Cargo.lock`), and merge it to `main`.
+2. Tag the merge commit `vX.Y.Z`, matching that version exactly, and push the tag.
+3. The `Release` workflow checks the tag against the crate version and publishes `diagrid-goose` to crates.io.
+
+The crates.io API token is the repository secret `CARGO_REGISTRY_TOKEN`. CI also runs `cargo publish --dry-run` on every pull request.
+
 ## Community
 
 Have questions, hit a bug, or want to share what you're building? Join the [Diagrid Community Discord](https://diagrid.ws/diagrid-community) to connect with the team and other users.
