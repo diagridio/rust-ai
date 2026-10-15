@@ -61,11 +61,11 @@ Run the quickstart again, press Ctrl-C while Goose is still answering, then run 
 
 ### Use it in your own app
 
-`diagrid-goose` isn't on crates.io yet, so depend on it from git:
+Add `diagrid-goose` with `cargo add diagrid-goose`, or in `Cargo.toml`:
 
 ```toml
 [dependencies]
-diagrid-goose = { git = "https://github.com/diagridio/rust-ai" }
+diagrid-goose = "0.1"
 dapr = { version = "0.19.0", features = ["workflow"] }
 tokio = { version = "1", features = ["full"] }
 serde_json = "1"
