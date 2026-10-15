@@ -33,7 +33,13 @@ jobs:
         run: cargo test --workspace
 
       - name: Clippy
-        run: cargo clippy --workspace --all-targets
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Package contents
+        run: |
+          cargo package --list -p diagrid-goose | tee package-files.txt
+          grep -qx LICENSE.md package-files.txt
+          grep -qx README.md package-files.txt
 
       # Builds the package exactly as crates.io would, license and README included.
       - name: Publish dry run
