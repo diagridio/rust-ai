@@ -32,9 +32,11 @@ jobs:
 
       - name: Check the tagged commit is on main
         run: |
-          git fetch --no-tags origin main
           git merge-base --is-ancestor "$GITHUB_SHA" origin/main \
             || { echo "::error::tagged commit is not on main"; exit 1; }
+
+      - name: Test
+        run: cargo test --locked -p diagrid-goose
 
       - name: Publish to crates.io
         env:
