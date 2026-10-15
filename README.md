@@ -34,7 +34,7 @@ dapr run --app-id goose-quickstart --resources-path ./examples/resources \
     -- cargo run --example quickstart
 ```
 
-[`examples/quickstart.rs`](crates/diagrid-goose/examples/quickstart.rs) runs a two-turn conversation with Goose as a Dapr Workflow, one activity per turn, and prints something like:
+[`examples/quickstart.rs`](https://github.com/diagridio/rust-ai/blob/main/crates/diagrid-goose/examples/quickstart.rs) runs a two-turn conversation with Goose as a Dapr Workflow, one activity per turn, and prints something like:
 
 ```text
 Turn 1
@@ -61,11 +61,11 @@ Run the quickstart again, press Ctrl-C while Goose is still answering, then run 
 
 ### Use it in your own app
 
-`diagrid-goose` isn't on crates.io yet, so depend on it from git:
+Add `diagrid-goose` with `cargo add diagrid-goose`, or in `Cargo.toml`:
 
 ```toml
 [dependencies]
-diagrid-goose = { git = "https://github.com/diagridio/rust-ai" }
+diagrid-goose = "0.1"
 dapr = { version = "0.19.0", features = ["workflow"] }
 tokio = { version = "1", features = ["full"] }
 serde_json = "1"
@@ -137,9 +137,17 @@ Run it next to a Dapr sidecar: `dapr run --app-id my-agent -- cargo run`. The st
 
 | Example | What it shows |
 | --- | --- |
-| [`quickstart`](crates/diagrid-goose/examples/quickstart.rs) | A two-turn Goose conversation as a durable workflow, using your configured model provider. |
-| [`goose_crash_recovery`](crates/diagrid-goose/examples/goose_crash_recovery.rs) | Self-checking crash test: the worker is killed in the middle of a turn, and a restart resumes it. Uses a built-in stand-in for the model, so no API key needed; takes two runs (steps in the file). |
-| [`crash_recovery`](crates/diagrid-goose/examples/crash_recovery.rs) | The same kind of crash test for a plain Dapr workflow, without Goose. |
+| [`quickstart`](https://github.com/diagridio/rust-ai/blob/main/crates/diagrid-goose/examples/quickstart.rs) | A two-turn Goose conversation as a durable workflow, using your configured model provider. |
+| [`goose_crash_recovery`](https://github.com/diagridio/rust-ai/blob/main/crates/diagrid-goose/examples/goose_crash_recovery.rs) | Self-checking crash test: the worker is killed in the middle of a turn, and a restart resumes it. Uses a built-in stand-in for the model, so no API key needed; takes two runs (steps in the file). |
+| [`crash_recovery`](https://github.com/diagridio/rust-ai/blob/main/crates/diagrid-goose/examples/crash_recovery.rs) | The same kind of crash test for a plain Dapr workflow, without Goose. |
+
+## Releasing
+
+1. Bump `version` in `[workspace.package]` in `Cargo.toml` (and refresh `Cargo.lock`), and merge it to `main`.
+2. Tag the merge commit `vX.Y.Z`, matching that version exactly, and push the tag.
+3. The `Release` workflow checks the tag against the crate version and publishes `diagrid-goose` to crates.io.
+
+The crates.io API token is the repository secret `CARGO_REGISTRY_TOKEN`. CI also runs `cargo publish --dry-run` on every pull request.
 
 ## Community
 

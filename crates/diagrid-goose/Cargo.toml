@@ -5,6 +5,11 @@ version.workspace = true
 edition.workspace = true
 license-file.workspace = true
 repository.workspace = true
+readme = "../../README.md"
+keywords = ["dapr", "workflow", "goose", "ai-agents", "durable-execution"]
+categories = ["asynchronous", "development-tools"]
+documentation = "https://docs.rs/diagrid-goose"
+homepage = "https://www.diagrid.io"
 
 [dependencies]
 dapr = { workspace = true }
