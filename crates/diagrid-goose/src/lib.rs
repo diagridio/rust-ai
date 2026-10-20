@@ -43,7 +43,8 @@
 //!
 //! Register the workflow, start a worker, then schedule a run — one message
 //! per turn — and wait for its result. The app runs next to a Dapr sidecar
-//! (`dapr run --app-id my-agent -- cargo run`), and Goose uses whatever
+//! (`dapr run --app-id my-agent -- cargo run`) or against a Catalyst project
+//! (`diagrid dev run --id my-agent -- cargo run`), and Goose uses whatever
 //! model provider it is configured for. `examples/quickstart.rs` is a
 //! complete, runnable version; the repository README has the setup steps.
 //!
@@ -51,10 +52,11 @@
 //! # async fn run() -> anyhow::Result<()> {
 //! use std::time::Duration;
 //!
-//! use dapr::workflow::{FetchOptions, RuntimeStatus, ScheduleOptions, WorkflowClient};
+//! use dapr::workflow::{FetchOptions, RuntimeStatus, ScheduleOptions};
 //! use diagrid_goose::{GooseWorkflowInput, GooseWorkflowOutput, WORKFLOW_NAME};
 //!
-//! let mut client = WorkflowClient::new().await?;
+//! // Local `dapr run` sidecar or Catalyst: see [`connect`].
+//! let mut client = diagrid_goose::workflow_client().await?;
 //! diagrid_goose::register(client.registry_mut());
 //! let worker = client.start_worker().await?;
 //!
@@ -98,11 +100,13 @@
 //! # }
 //! ```
 
+pub mod connect;
 pub mod turn;
 pub mod workflow;
 
 use dapr::workflow::RegistryExt;
 
+pub use connect::workflow_client;
 pub use turn::{RunTurnInput, RunTurnOutput};
 pub use workflow::{GooseWorkflowInput, GooseWorkflowOutput, ACTIVITY_NAME, WORKFLOW_NAME};
 
@@ -110,8 +114,7 @@ pub use workflow::{GooseWorkflowInput, GooseWorkflowOutput, ACTIVITY_NAME, WORKF
 ///
 /// ```no_run
 /// # async fn run() -> anyhow::Result<()> {
-/// use dapr::workflow::WorkflowClient;
-/// let mut client = WorkflowClient::new().await?;
+/// let mut client = diagrid_goose::workflow_client().await?;
 /// diagrid_goose::register(client.registry_mut());
 /// # Ok(())
 /// # }
