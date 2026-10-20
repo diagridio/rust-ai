@@ -14,7 +14,7 @@ This is the Rust counterpart to [`python-ai`](https://github.com/diagridio/pytho
 - **Goose**, with a model provider configured. The installer walks you through `goose configure` (choose a provider and model, enter its API key), and you can re-run `goose configure` any time:
 
   ```bash
-  curl -fsSL https://github.com/aif-goose/goose/releases/download/stable/download_cli.sh | bash
+  curl -fsSL https://github.com/aaif-goose/goose/releases/download/stable/download_cli.sh | bash
   ```
 
   `diagrid-goose` is validated against Goose v1.54.0; to install exactly that version, change the end of the command to `| GOOSE_VERSION=v1.54.0 bash`. Rather than running `goose configure`, you can also configure Goose through the environment, e.g. for OpenAI:
