@@ -20,7 +20,7 @@
 use std::process;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use dapr::workflow::{FetchOptions, RuntimeStatus, ScheduleOptions, WorkflowClient};
+use dapr::workflow::{FetchOptions, RuntimeStatus, ScheduleOptions};
 use diagrid_goose::{GooseWorkflowInput, GooseWorkflowOutput};
 
 #[tokio::main]
@@ -47,7 +47,8 @@ async fn main() -> anyhow::Result<()> {
         ];
     }
 
-    let mut client = WorkflowClient::new().await?;
+    // Works next to `dapr run` and under `diagrid dev run` (Catalyst) alike.
+    let mut client = diagrid_goose::workflow_client().await?;
     diagrid_goose::register(client.registry_mut());
     let worker = client.start_worker().await?;
 

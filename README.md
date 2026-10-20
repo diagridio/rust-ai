@@ -14,7 +14,7 @@ This is the Rust counterpart to [`python-ai`](https://github.com/diagridio/pytho
 - **Goose**, with a model provider configured. The installer walks you through `goose configure` (choose a provider and model, enter its API key), and you can re-run `goose configure` any time:
 
   ```bash
-  curl -fsSL https://github.com/aif-goose/goose/releases/download/stable/download_cli.sh | bash
+  curl -fsSL https://github.com/aaif-goose/goose/releases/download/stable/download_cli.sh | bash
   ```
 
   `diagrid-goose` is validated against Goose v1.54.0; to install exactly that version, change the end of the command to `| GOOSE_VERSION=v1.54.0 bash`. Rather than running `goose configure`, you can also configure Goose through the environment, e.g. for OpenAI:
@@ -75,13 +75,14 @@ anyhow = "1"
 ```rust
 use std::time::Duration;
 
-use dapr::workflow::{FetchOptions, RuntimeStatus, ScheduleOptions, WorkflowClient};
+use dapr::workflow::{FetchOptions, RuntimeStatus, ScheduleOptions};
 use diagrid_goose::{GooseWorkflowInput, GooseWorkflowOutput, WORKFLOW_NAME};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // Register the Goose workflow and its per-turn activity, and start serving them.
-    let mut client = WorkflowClient::new().await?;
+    // Connect to the sidecar (local Dapr or Catalyst), register the Goose
+    // workflow and its per-turn activity, and start serving them.
+    let mut client = diagrid_goose::workflow_client().await?;
     diagrid_goose::register(client.registry_mut());
     let worker = client.start_worker().await?;
 
@@ -127,10 +128,14 @@ async fn main() -> anyhow::Result<()> {
 
 Run it next to a Dapr sidecar: `dapr run --app-id my-agent -- cargo run`. The state store `dapr init` sets up already works for Dapr Workflows; pass `--resources-path` to use your own components instead.
 
+### Run it on Diagrid Catalyst
+
+The same app runs against a [Catalyst](https://www.diagrid.io/catalyst) project with no code change: `diagrid dev run --project my-project --id my-agent -- cargo run` hands it the project's endpoint and API token. That is why the example connects with `diagrid_goose::workflow_client()` rather than `WorkflowClient::new()`. The Dapr Rust SDK (`dapr` 0.19.0) dials its sidecar in plaintext and sends no API token, which works for a local sidecar but not for Catalyst, whose endpoint needs TLS and the app's `DAPR_API_TOKEN` on every call. `workflow_client()` reads the same environment as `WorkflowClient::new()`, plus `DAPR_API_TOKEN`, and when the endpoint needs TLS (`https://` or `?tls=true`) or a token is set, it connects through an in-process loopback relay that adds them. Against a plain local sidecar it is exactly `WorkflowClient::new()`. Once the SDK handles TLS and the token itself, the relay goes away and this function keeps working.
+
 ### Good to know
 
 - **Goose runs unattended.** Tool permission requests are approved automatically, so point `cwd` at a directory you're comfortable with Goose changing.
-- **Provider settings can be per workflow.** `env` is added on top of the worker's own environment for every Goose process the workflow starts, so it can carry `GOOSE_PROVIDER`, `GOOSE_MODEL` or an API key.
+- **Provider settings can be per workflow.** `env` is added on top of the worker's own environment for every Goose process the workflow starts, so it can carry `GOOSE_PROVIDER` or `GOOSE_MODEL`. It is part of the workflow's recorded input, which anyone with access to the workflow store can read, so leave API keys in the worker's own environment: Goose inherits that too.
 - **Goose's session store has to outlive the worker.** Goose keeps sessions in its own SQLite store (`GOOSE_PATH_ROOT`, by default under `~/.local/share/goose`), and a turn can only resume against the store its session started in — in a container, put it on a persistent volume.
 
 ### Examples
