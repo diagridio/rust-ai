@@ -11,19 +11,25 @@ This is the Rust counterpart to [`python-ai`](https://github.com/diagridio/pytho
 
 - **Rust 1.88 or newer**, e.g. via [rustup](https://rustup.rs) — check with `rustc --version`.
 - **Dapr**, set up for local development: [install the Dapr CLI](https://docs.dapr.io/getting-started/install-dapr-cli/), then run `dapr init`, which starts the Redis, placement and scheduler containers (Docker required) that Dapr Workflows run on. Validated with Dapr 1.18.
-- **Goose**, with a model provider configured. The installer walks you through `goose configure` (choose a provider and model, enter its API key), and you can re-run `goose configure` any time:
+- **Goose**, installed:
 
   ```bash
   curl -fsSL https://github.com/aaif-goose/goose/releases/download/stable/download_cli.sh | bash
   ```
 
-  `diagrid-goose` is validated against Goose v1.54.0; to install exactly that version, change the end of the command to `| GOOSE_VERSION=v1.54.0 bash`. Rather than running `goose configure`, you can also configure Goose through the environment, e.g. for OpenAI:
+  `diagrid-goose` is validated against Goose v1.54.0; to install exactly that version, change the end of the command to `| GOOSE_VERSION=v1.54.0 bash`.
+- **A model provider for Goose.** Installing Goose is not enough: without a provider, the quickstart stops with `Configuration value not found: GOOSE_PROVIDER`. Set one in either of two ways:
+  - Run `goose configure` (the installer offers it too): choose a provider and model, and enter its API key. Goose saves this in its config file, and you can re-run `goose configure` any time.
+  - Or export it in the shell you run the quickstart from, e.g. for Anthropic:
 
-  ```bash
-  export GOOSE_PROVIDER=openai GOOSE_MODEL=gpt-4.1-mini OPENAI_API_KEY=sk-...
-  ```
+    ```bash
+    export GOOSE_PROVIDER=anthropic GOOSE_MODEL=claude-sonnet-5-5 ANTHROPIC_API_KEY=sk-ant-...
+    export GOOSE_DISABLE_KEYRING=1
+    ```
 
-  On servers and in containers, use the environment and also set `GOOSE_DISABLE_KEYRING=1`, so Goose never reaches for a system keyring that isn't there — Goose sets the same flag for the unattended runs its own scheduler starts.
+    For OpenAI, use `GOOSE_PROVIDER=openai GOOSE_MODEL=gpt-4.1-mini OPENAI_API_KEY=sk-...`. `GOOSE_DISABLE_KEYRING=1` keeps Goose from reaching for a system keyring; on servers and in containers there isn't one, so always set it there — Goose sets the same flag for the unattended runs its own scheduler starts.
+
+  Either way, `goose info -v` should now show your provider and model.
 
 ### Run the quickstart
 

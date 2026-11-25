@@ -38,6 +38,13 @@ async fn main() -> anyhow::Result<()> {
              (https://github.com/aaif-goose/goose) or set GOOSE_BIN to its path"
         );
     }
+    if !provider_configured(&goose) {
+        anyhow::bail!(
+            "Goose has no model provider: run `goose configure`, or export \
+             GOOSE_PROVIDER, GOOSE_MODEL and the provider's API key \
+             (see https://github.com/diagridio/rust-ai#prerequisites)"
+        );
+    }
 
     let mut tasks: Vec<String> = std::env::args().skip(1).collect();
     if tasks.is_empty() {
@@ -135,4 +142,23 @@ async fn main() -> anyhow::Result<()> {
         output.session_id
     );
     Ok(())
+}
+
+/// Whether Goose has a model provider, from the environment or its config
+/// file. `goose info -v` prints the settings Goose resolved from both; the
+/// output is only searched, never printed. If it can't be read, assume yes
+/// and let Goose report the problem itself.
+fn provider_configured(goose: &str) -> bool {
+    if std::env::var_os("GOOSE_PROVIDER").is_some_and(|v| !v.is_empty()) {
+        return true;
+    }
+    let Ok(out) = process::Command::new(goose).args(["info", "-v"]).output() else {
+        return true;
+    };
+    let info = String::from_utf8_lossy(&out.stdout);
+    if !out.status.success() || !info.contains("Configuration:") {
+        return true;
+    }
+    info.lines()
+        .any(|line| line.trim_start().starts_with("GOOSE_PROVIDER:"))
 }
